@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # crowdcoin
 The repo that hosts the smart contract for Crowdcoin - An ETHSafari hackathon project
 =======
@@ -15,4 +14,3 @@ GAS_REPORT=true npx hardhat test
 npx hardhat node
 npx hardhat run scripts/deploy.js
 ```
->>>>>>> c4fad6b (Initial commit)
