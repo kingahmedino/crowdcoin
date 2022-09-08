@@ -10,41 +10,84 @@ import "./CampaignInterface.sol";
 /// @author @tanim0la, @kingahmedino
 /// @notice This contract manages all campaigns created on the Crowdcoin dApp
 /// @dev All function calls are currently implemented without side effects
-contract CampaignFactory  is Initializable, UUPSUpgradeable, OwnableUpgradeable {
-
+contract CampaignFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     address[] public deployedCampaigns;
 
     mapping(address => address[]) public creatorCampaigns;
     mapping(address => address[]) public contributedCampaigns;
     mapping(address => mapping(address => bool)) public contributed;
 
+    event CampaignCreated(
+        string campaignName,
+        string creatorName,
+        string campaignDescription,
+        uint256 indexed minimumContribution,
+        address indexed escrowAddress
+    );
+
+    event Contributed(
+        address indexed campaign,
+        address indexed contributor,
+        uint256 value
+    );
 
     function initialize() public initializer {
         __Ownable_init();
     }
 
-    function createCampaign (string memory campaignName, string memory creatorName, uint256 minimum, string memory campaignDescription) public {
-        address newCampaign = address(new Campaign(campaignName, creatorName, minimum, campaignDescription, msg.sender));
+    function createCampaign(
+        string memory campaignName,
+        string memory creatorName,
+        uint256 minimum,
+        string memory campaignDescription
+    ) public {
+        address newCampaign = address(
+            new Campaign(
+                campaignName,
+                creatorName,
+                minimum,
+                campaignDescription,
+                msg.sender
+            )
+        );
 
         creatorCampaigns[_msgSender()].push(newCampaign);
         deployedCampaigns.push(newCampaign);
+
+        emit CampaignCreated(
+            campaignName,
+            creatorName,
+            campaignDescription,
+            minimum,
+            newCampaign
+        );
     }
 
     function contribute(address _campaign) public payable {
         CampaignInterface _campaignInterface = CampaignInterface(_campaign);
         _campaignInterface.contribute{value: msg.value}(_msgSender());
 
-        if(!contributed[_msgSender()][_campaign]){
+        if (!contributed[_msgSender()][_campaign]) {
             contributedCampaigns[_msgSender()].push(_campaign);
             contributed[_msgSender()][_campaign] = true;
         }
+
+        emit Contributed(_campaign, _msgSender(), msg.value);
     }
 
-    function getCreatorCampaigns(address creatorAddress) public view returns (address[] memory) {
+    function getCreatorCampaigns(address creatorAddress)
+        public
+        view
+        returns (address[] memory)
+    {
         return creatorCampaigns[creatorAddress];
     }
 
-    function getContributedCampaigns(address contributorAddress) public view returns (address[] memory) {
+    function getContributedCampaigns(address contributorAddress)
+        public
+        view
+        returns (address[] memory)
+    {
         return contributedCampaigns[contributorAddress];
     }
 
@@ -52,13 +95,14 @@ contract CampaignFactory  is Initializable, UUPSUpgradeable, OwnableUpgradeable 
         return deployedCampaigns;
     }
 
-    function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
-
+    function _authorizeUpgrade(address newImplementation)
+        internal
+        override
+        onlyOwner
+    {}
 }
 
-
 contract Campaign {
-
     struct Request {
         address recipient;
         bool complete;
@@ -66,7 +110,7 @@ contract Campaign {
         string description;
         uint256 value;
         mapping(address => bool) approvals;
-    }  
+    }
 
     string public campaignName;
     string public creatorName;
@@ -80,11 +124,40 @@ contract Campaign {
 
     address public creator;
 
-    mapping(address => uint) public contributorBalance;
+    mapping(address => uint256) public contributorBalance;
 
     Request[] public requests;
 
-    constructor(string memory _campaignName, string memory _creatorName, uint256 minimum, string memory _campaignDescription, address _creator) {
+    event RequestCreated(
+        address indexed campaign,
+        address indexed recipient,
+        uint256 indexed value,
+        string description
+    );
+
+    event ApprovedRequest(
+        address indexed campaign,
+        string campaignName,
+        address indexed approver,
+        uint40 approvalsCount,
+        string description
+    );
+
+    event RequestFinalized(
+        address indexed campaign,
+        string campaignName,
+        address indexed recipient,
+        uint40 approvalsCount,
+        string description
+    );
+
+    constructor(
+        string memory _campaignName,
+        string memory _creatorName,
+        uint256 minimum,
+        string memory _campaignDescription,
+        address _creator
+    ) {
         creator = _creator;
         minimumContribution = minimum;
         creatorName = _creatorName;
@@ -93,11 +166,13 @@ contract Campaign {
         createdAt = uint40(block.timestamp);
     }
 
-
     function contribute(address _contributorAddress) public payable {
-        require(msg.value >= minimumContribution, "amount not greater than minimum");
+        require(
+            msg.value >= minimumContribution,
+            "amount not greater than minimum"
+        );
 
-        if(contributorBalance[_contributorAddress] == 0){
+        if (contributorBalance[_contributorAddress] == 0) {
             contributorsCount++;
         }
 
@@ -105,7 +180,11 @@ contract Campaign {
         totalContributed += msg.value;
     }
 
-    function createRequest(string memory description, uint256 value, address recipient) public restricted {
+    function createRequest(
+        string memory description,
+        uint256 value,
+        address recipient
+    ) public restricted {
         requests.push();
         Request storage newRequest = requests[numRequests++];
         newRequest.description = description;
@@ -113,6 +192,8 @@ contract Campaign {
         newRequest.recipient = recipient;
         newRequest.complete = false;
         newRequest.approvalCount = 0;
+
+        emit RequestCreated(address(this), recipient, value, description);
     }
 
     function approveRequest(uint256 index) public {
@@ -123,21 +204,55 @@ contract Campaign {
 
         request.approvals[msg.sender] = true;
         request.approvalCount++;
+
+        emit ApprovedRequest(
+            address(this),
+            campaignName,
+            msg.sender,
+            request.approvalCount,
+            request.description
+        );
     }
 
     function finalizeRequest(uint256 index) public restricted {
         Request storage request = requests[index];
 
-        require(request.approvalCount > (contributorsCount/2), "not enough approvals");
+        require(
+            request.approvalCount > (contributorsCount / 2),
+            "not enough approvals"
+        );
         require(!request.complete, "request already finalized");
 
         request.complete = true;
 
         payable(request.recipient).transfer(request.value);
+
+        emit RequestFinalized(
+            address(this),
+            campaignName,
+            request.recipient,
+            request.approvalCount,
+            request.description
+        );
     }
 
-    function getSummary() public view returns (uint256, uint256, uint256, uint256, uint256, uint256, string memory, string memory, string memory, address) {
-        return(
+    function getSummary()
+        public
+        view
+        returns (
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            uint256,
+            string memory,
+            string memory,
+            string memory,
+            address
+        )
+    {
+        return (
             minimumContribution,
             address(this).balance,
             totalContributed,
@@ -150,7 +265,7 @@ contract Campaign {
             creator
         );
     }
-    
+
     modifier restricted() {
         require(msg.sender == creator);
         _;
