@@ -101,7 +101,7 @@ contract Campaign {
             contributorsCount++;
         }
 
-        contributorBalance[msg.sender] += msg.value;
+        contributorBalance[_contributorAddress] += msg.value;
         totalContributed += msg.value;
     }
 

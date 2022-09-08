@@ -1,5 +1,4 @@
 const { expect } = require("chai");
-const { constants } = require("ethers");
 const { parseEther } = require("ethers/lib/utils");
 const { ethers } = require("hardhat");
 
@@ -63,50 +62,54 @@ describe("Campaign", function () {
     expect(contributedCampaigns[0]).to.equal(deployedCampaigns[0]);
   });
 
-  //   it("should create a Campaign, contribute to it and make a withdrawal", async () => {
-  //     await createACampaign();
+  it("should create a Campaign, contribute to it and make a withdrawal", async () => {
+    await createACampaign();
 
-  //     //get deployed campaigns
-  //     const deployedCampaigns =
-  //       await campaignFactoryContract.getDeployedCampaigns();
+    //get deployed campaigns
+    const deployedCampaigns =
+      await campaignFactoryContract.getDeployedCampaigns();
 
-  //     //contribute to a campaign
-  //     await campaignFactoryContract
-  //       .connect(contributor1)
-  //       .contribute(deployedCampaigns[0], { value: parseEther("10") });
+    //contribute to a campaign
+    await campaignFactoryContract
+      .connect(contributor1)
+      .contribute(deployedCampaigns[0], { value: parseEther("10") });
 
-  //     //contribute again
-  //     await campaignFactoryContract
-  //       .connect(contributor2)
-  //       .contribute(deployedCampaigns[0], { value: parseEther("20") });
+    //contribute again
+    await campaignFactoryContract
+      .connect(contributor2)
+      .contribute(deployedCampaigns[0], { value: parseEther("20") });
 
-  //     const abi = [
-  //       "function createRequest(string memory description, uint256 value, address recipient) public",
-  //       "function approveRequest(uint256 index) public",
-  //       "function finalizeRequest(uint256 index) public",
-  //       "function getSummary() public view returns (uint256, uint256, uint256, uint256, uint256, uint256, string memory, string memory, string memory, address)",
-  //     ];
+    const abi = [
+      "function createRequest(string memory description, uint256 value, address recipient) public",
+      "function approveRequest(uint256 index) public",
+      "function finalizeRequest(uint256 index) public",
+      "function getSummary() public view returns (uint256, uint256, uint256, uint256, uint256, uint256, string memory, string memory, string memory, address)",
+      "function requests(uint) view public returns (address, bool, uint40, string, uint256)",
+    ];
 
-  //     const campaignContract = new ethers.Contract(
-  //       deployedCampaigns[0],
-  //       abi,
-  //       owner
-  //     );
+    const campaignContract = new ethers.Contract(
+      deployedCampaigns[0],
+      abi,
+      owner
+    );
 
-  //     await campaignContract
-  //       .connect(creator1)
-  //       .createRequest(
-  //         "I need to buy cat food",
-  //         parseEther("10"),
-  //         withdrawalRecipient.address
-  //       );
-  //     await campaignContract.connect(contributor1).approveRequest(0);
-  //     await campaignContract.connect(contributor2).approveRequest(0);
-  //     await campaignContract.connect(creator1).finalizeRequest(0);
+    await campaignContract
+      .connect(creator1)
+      .createRequest(
+        "I need to buy cat food",
+        parseEther("10"),
+        withdrawalRecipient.address
+      );
+    await campaignContract
+      .connect(contributor1)
+      .approveRequest(0, { gasLimit: 200000 });
+    await campaignContract
+      .connect(contributor2)
+      .approveRequest(0, { gasLimit: 200000 });
+    await campaignContract.connect(creator1).finalizeRequest(0);
 
-  //get requests
-  // console.log(await campaignContract.requests());
+    const request = await campaignContract.requests(0);
 
-  // expect(contributedCampaigns[0]).to.equal(deployedCampaigns[0]);
-  //   });
+    expect(request[1]).true;
+  });
 });
