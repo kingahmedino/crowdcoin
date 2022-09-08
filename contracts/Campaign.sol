@@ -1,14 +1,18 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.9;
+pragma solidity ^0.8.15;
 
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import "./CampaignInterface.sol";
 
-
+/// @title CampaignFactory
+/// @author @tanim0la, @kingahmedino
+/// @notice This contract manages all campaigns created on the Crowdcoin dApp
+/// @dev All function calls are currently implemented without side effects
 contract CampaignFactory  is Initializable, UUPSUpgradeable, OwnableUpgradeable {
 
-    address[] public deplopedCampaigns;
+    address[] public deployedCampaigns;
 
     mapping(address => address[]) public creatorCampaigns;
     mapping(address => address[]) public contributedCampaigns;
@@ -23,11 +27,12 @@ contract CampaignFactory  is Initializable, UUPSUpgradeable, OwnableUpgradeable 
         address newCampaign = address(new Campaign(campaignName, creatorName, minimum, campaignDescription, msg.sender));
 
         creatorCampaigns[_msgSender()].push(newCampaign);
-        deplopedCampaigns.push(newCampaign);
+        deployedCampaigns.push(newCampaign);
     }
 
     function contribute(address _campaign) public payable {
-        Campaign(_campaign).contribute{value: msg.value}(_msgSender());
+        CampaignInterface _campaignInterface = CampaignInterface(_campaign);
+        _campaignInterface.contribute{value: msg.value}(_msgSender());
 
         if(!contributed[_msgSender()][_campaign]){
             contributedCampaigns[_msgSender()].push(_campaign);
@@ -43,9 +48,8 @@ contract CampaignFactory  is Initializable, UUPSUpgradeable, OwnableUpgradeable 
         return contributedCampaigns[contributorAddress];
     }
 
-
     function getDeployedCampaigns() public view returns (address[] memory) {
-        return deplopedCampaigns;
+        return deployedCampaigns;
     }
 
     function _authorizeUpgrade(address newImplementation) internal override onlyOwner {}
@@ -91,7 +95,7 @@ contract Campaign {
 
 
     function contribute(address _contributorAddress) public payable {
-        require(msg.value >= minimumContribution, "AMOUNT NOT GREATER THAN MINIMUM");
+        require(msg.value >= minimumContribution, "amount not greater than minimum");
 
         if(contributorBalance[msg.sender] == 0){
             contributorsCount++;
@@ -109,14 +113,13 @@ contract Campaign {
         newRequest.recipient = recipient;
         newRequest.complete = false;
         newRequest.approvalCount = 0;
-
     }
 
     function approveRequest(uint index) public {
         Request storage request = requests[index];
 
-        require(contributorBalance[msg.sender] > 0, "NOT A CONTRIBUTOR!!!");
-        require(!request.approvals[msg.sender], "CANNOT APPROVE A REQUEST TWICE!!!");
+        require(contributorBalance[msg.sender] > 0, "not a contributor");
+        require(!request.approvals[msg.sender], "cannot multi-approve");
 
         request.approvals[msg.sender] = true;
         request.approvalCount++;
@@ -125,8 +128,8 @@ contract Campaign {
     function finalizeRequest(uint index) public restricted {
         Request storage request = requests[index];
 
-        require(request.approvalCount > (contributorsCount/2), "NOT ENOUGH APPROVAL!!!");
-        require(!request.complete, "THIS REQUEST HAS BEEN FINALIZED!!!");
+        require(request.approvalCount > (contributorsCount/2), "not enough approvals");
+        require(!request.complete, "request already finalized");
 
         request.complete = true;
 
