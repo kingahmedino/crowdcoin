@@ -76,7 +76,7 @@ contract Campaign {
 
     address public creator;
 
-    mapping(address => bool) public contributors;
+    mapping(address => uint) public contributorBalance;
 
     Request[] public requests;
 
@@ -92,11 +92,12 @@ contract Campaign {
 
     function contribute(address _contributorAddress) public payable {
         require(msg.value >= minimumContribution, "AMOUNT NOT GREATER THAN MINIMUM");
-  
-        if(!contributors[_contributorAddress]){
-            contributors[_contributorAddress] = true;
+
+        if(contributorBalance[msg.sender] == 0){
             contributorsCount++;
         }
+
+        contributorBalance[msg.sender] += msg.value;
         totalContributed += msg.value;
     }
 
@@ -114,7 +115,7 @@ contract Campaign {
     function approveRequest(uint index) public {
         Request storage request = requests[index];
 
-        require(contributors[msg.sender], "NOT A CONTRIBUTOR!!!");
+        require(contributorBalance[msg.sender] > 0, "NOT A CONTRIBUTOR!!!");
         require(!request.approvals[msg.sender], "CANNOT APPROVE A REQUEST TWICE!!!");
 
         request.approvals[msg.sender] = true;
