@@ -97,7 +97,7 @@ contract Campaign {
     function contribute(address _contributorAddress) public payable {
         require(msg.value >= minimumContribution, "amount not greater than minimum");
 
-        if(contributorBalance[msg.sender] == 0){
+        if(contributorBalance[_contributorAddress] == 0){
             contributorsCount++;
         }
 
