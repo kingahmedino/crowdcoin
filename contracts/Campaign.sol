@@ -23,7 +23,7 @@ contract CampaignFactory  is Initializable, UUPSUpgradeable, OwnableUpgradeable 
         __Ownable_init();
     }
 
-    function createCampaign (string memory campaignName, string memory creatorName, uint minimum, string memory campaignDescription) public {
+    function createCampaign (string memory campaignName, string memory creatorName, uint256 minimum, string memory campaignDescription) public {
         address newCampaign = address(new Campaign(campaignName, creatorName, minimum, campaignDescription, msg.sender));
 
         creatorCampaigns[_msgSender()].push(newCampaign);
@@ -60,11 +60,11 @@ contract CampaignFactory  is Initializable, UUPSUpgradeable, OwnableUpgradeable 
 contract Campaign {
 
     struct Request {
-        string description;
-        uint value;
         address recipient;
         bool complete;
-        uint approvalCount;
+        uint40 approvalCount;
+        string description;
+        uint256 value;
         mapping(address => bool) approvals;
     }  
 
@@ -72,11 +72,11 @@ contract Campaign {
     string public creatorName;
     string public campaignDescription;
 
-    uint public minimumContribution;
-    uint public contributorsCount;
-    uint public totalContributed;
-    uint public numRequests;
-    uint public createdAt;
+    uint256 public minimumContribution;
+    uint40 public contributorsCount;
+    uint256 public totalContributed;
+    uint8 public numRequests;
+    uint40 public createdAt;
 
     address public creator;
 
@@ -84,13 +84,13 @@ contract Campaign {
 
     Request[] public requests;
 
-    constructor(string memory _campaignName, string memory _creatorName, uint minimum, string memory _campaignDescription, address _creator) {
+    constructor(string memory _campaignName, string memory _creatorName, uint256 minimum, string memory _campaignDescription, address _creator) {
         creator = _creator;
         minimumContribution = minimum;
         creatorName = _creatorName;
         campaignName = _campaignName;
         campaignDescription = _campaignDescription;
-        createdAt = block.timestamp;
+        createdAt = uint40(block.timestamp);
     }
 
 
@@ -105,7 +105,7 @@ contract Campaign {
         totalContributed += msg.value;
     }
 
-    function createRequest(string memory description, uint value, address recipient) public restricted {
+    function createRequest(string memory description, uint256 value, address recipient) public restricted {
         requests.push();
         Request storage newRequest = requests[numRequests++];
         newRequest.description = description;
@@ -115,7 +115,7 @@ contract Campaign {
         newRequest.approvalCount = 0;
     }
 
-    function approveRequest(uint index) public {
+    function approveRequest(uint256 index) public {
         Request storage request = requests[index];
 
         require(contributorBalance[msg.sender] > 0, "not a contributor");
@@ -125,7 +125,7 @@ contract Campaign {
         request.approvalCount++;
     }
 
-    function finalizeRequest(uint index) public restricted {
+    function finalizeRequest(uint256 index) public restricted {
         Request storage request = requests[index];
 
         require(request.approvalCount > (contributorsCount/2), "not enough approvals");
@@ -136,7 +136,7 @@ contract Campaign {
         payable(request.recipient).transfer(request.value);
     }
 
-    function getSummary() public view returns (uint, uint, uint, uint, uint, uint, string memory, string memory, string memory, address) {
+    function getSummary() public view returns (uint256, uint256, uint256, uint256, uint256, uint256, string memory, string memory, string memory, address) {
         return(
             minimumContribution,
             address(this).balance,
