@@ -6,10 +6,11 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol";
 import "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import "./CampaignInterface.sol";
 
-/// @title CampaignFactory
-/// @author @tanim0la, @kingahmedino
-/// @notice This contract manages all campaigns created on the Crowdcoin dApp
-/// @dev All function calls are currently implemented without side effects
+/** @title CampaignFactory
+ * @author @tanim0la, @kingahmedino
+ * @notice This contract manages all campaigns created on the Crowdcoin dApp
+ * @dev All function calls are currently implemented without side effects
+ */
 contract CampaignFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     address[] public deployedCampaigns;
 
@@ -35,6 +36,13 @@ contract CampaignFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         __Ownable_init();
     }
 
+    /**
+     * @notice Allows anyone to create a new campaign
+     * @param campaignName The name of the campaign
+     * @param creatorName The name of the creator
+     * @param minimum The minimum contribution accepted into the campaign
+     * @param campaignDescription The description of the campaign
+     */
     function createCampaign(
         string memory campaignName,
         string memory creatorName,
@@ -63,6 +71,10 @@ contract CampaignFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         );
     }
 
+    /**
+     * @notice Allows anyone to contribute ether to a campaign
+     * @param _campaign The address of the campaign to contribute
+     */
     function contribute(address _campaign) public payable {
         CampaignInterface _campaignInterface = CampaignInterface(_campaign);
         _campaignInterface.contribute{value: msg.value}(_msgSender());
@@ -75,6 +87,11 @@ contract CampaignFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         emit Contributed(_campaign, _msgSender(), msg.value);
     }
 
+    /**
+     * @notice Get campaigns created by an address
+     * @param creatorAddress The address of the creator
+     * @return The campaigns created by the creator address
+     */
     function getCreatorCampaigns(address creatorAddress)
         public
         view
@@ -83,6 +100,11 @@ contract CampaignFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         return creatorCampaigns[creatorAddress];
     }
 
+    /**
+     * @notice Get campaigns an address contributed in
+     * @param contributorAddress The address of the contributor
+     * @return The campaigns contributed in by the contributor address
+     */
     function getContributedCampaigns(address contributorAddress)
         public
         view
@@ -91,6 +113,10 @@ contract CampaignFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
         return contributedCampaigns[contributorAddress];
     }
 
+    /**
+     * @notice Get all campaigns that have been created
+     * @return All campaigns created
+     */
     function getDeployedCampaigns() public view returns (address[] memory) {
         return deployedCampaigns;
     }
@@ -102,6 +128,11 @@ contract CampaignFactory is Initializable, UUPSUpgradeable, OwnableUpgradeable {
     {}
 }
 
+/** @title Campaign
+ * @author @tanim0la, @kingahmedino
+ * @notice This contract manages all details of a single campaign created on the Crowdcoin dApp
+ * @dev All function calls are currently implemented without side effects
+ */
 contract Campaign {
     struct Request {
         address recipient;
@@ -166,6 +197,10 @@ contract Campaign {
         createdAt = uint40(block.timestamp);
     }
 
+    /**
+     * @notice Allows anyone to contribute ether to a campaign
+     * @param _contributorAddress The address of the contributor
+     */
     function contribute(address _contributorAddress) public payable {
         require(
             msg.value >= minimumContribution,
@@ -180,6 +215,12 @@ contract Campaign {
         totalContributed += msg.value;
     }
 
+    /**
+     * @notice Allows the campaign creator to create a new request for withdrawal
+     * @param description The campaign description
+     * @param value The amount to withdraw
+     * @param recipient The address to be credited when request is granted
+     */
     function createRequest(
         string memory description,
         uint256 value,
@@ -196,6 +237,10 @@ contract Campaign {
         emit RequestCreated(address(this), recipient, value, description);
     }
 
+    /**
+     * @notice Allows any contributor of a campaign to approve a request for withdrawal
+     * @param index The index of the campaign request
+     */
     function approveRequest(uint256 index) public {
         Request storage request = requests[index];
 
@@ -214,6 +259,10 @@ contract Campaign {
         );
     }
 
+    /**
+     * @notice Allows the campaign creator to finalize a request after it has been approved by enough contributors
+     * @param index The index of the campaign request
+     */
     function finalizeRequest(uint256 index) public restricted {
         Request storage request = requests[index];
 
@@ -236,6 +285,19 @@ contract Campaign {
         );
     }
 
+    /**
+     * @notice Allows anyone to get the summary of a campaign
+     * @return minimum contribution
+     * @return campaign address
+     * @return totalContributed
+     * @return number of requests
+     * @return contributor count
+     * @return time created
+     * @return campaign name
+     * @return creator name
+     * @return campaign description
+     * @return creator address
+     */
     function getSummary()
         public
         view
