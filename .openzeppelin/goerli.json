@@ -1,0 +1,151 @@
+{
+  "manifestVersion": "3.2",
+  "proxies": [
+    {
+      "address": "0x107F67F583580F0B6AD61125CC37901A8B08dA83",
+      "txHash": "0xc2b33635c62e3ac099da2b302e40be1fbba0faf1abcec27d970bb4c7eae8aa09",
+      "kind": "uups"
+    }
+  ],
+  "impls": {
+    "c829d65f0450c4aea4e143ad393acb5cc96f3cc4bcbfe544320eac8a14e8a266": {
+      "address": "0x712d482B86e836C9f738D54bF64dd245d2430f47",
+      "txHash": "0xe100cacf9befc792c9bde2f5170634fce0fadc8abf7f60677f034f9939746363",
+      "layout": {
+        "storage": [
+          {
+            "label": "_initialized",
+            "offset": 0,
+            "slot": "0",
+            "type": "t_uint8",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:62",
+            "retypedFrom": "bool"
+          },
+          {
+            "label": "_initializing",
+            "offset": 1,
+            "slot": "0",
+            "type": "t_bool",
+            "contract": "Initializable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol:67"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "1",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ERC1967UpgradeUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/ERC1967/ERC1967UpgradeUpgradeable.sol:211"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "51",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "UUPSUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/proxy/utils/UUPSUpgradeable.sol:107"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "101",
+            "type": "t_array(t_uint256)50_storage",
+            "contract": "ContextUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/utils/ContextUpgradeable.sol:36"
+          },
+          {
+            "label": "_owner",
+            "offset": 0,
+            "slot": "151",
+            "type": "t_address",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:22"
+          },
+          {
+            "label": "__gap",
+            "offset": 0,
+            "slot": "152",
+            "type": "t_array(t_uint256)49_storage",
+            "contract": "OwnableUpgradeable",
+            "src": "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol:94"
+          },
+          {
+            "label": "deployedCampaigns",
+            "offset": 0,
+            "slot": "201",
+            "type": "t_array(t_address)dyn_storage",
+            "contract": "CampaignFactory",
+            "src": "contracts/Campaign.sol:15"
+          },
+          {
+            "label": "creatorCampaigns",
+            "offset": 0,
+            "slot": "202",
+            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
+            "contract": "CampaignFactory",
+            "src": "contracts/Campaign.sol:17"
+          },
+          {
+            "label": "contributedCampaigns",
+            "offset": 0,
+            "slot": "203",
+            "type": "t_mapping(t_address,t_array(t_address)dyn_storage)",
+            "contract": "CampaignFactory",
+            "src": "contracts/Campaign.sol:18"
+          },
+          {
+            "label": "contributed",
+            "offset": 0,
+            "slot": "204",
+            "type": "t_mapping(t_address,t_mapping(t_address,t_bool))",
+            "contract": "CampaignFactory",
+            "src": "contracts/Campaign.sol:19"
+          }
+        ],
+        "types": {
+          "t_address": {
+            "label": "address",
+            "numberOfBytes": "20"
+          },
+          "t_array(t_address)dyn_storage": {
+            "label": "address[]",
+            "numberOfBytes": "32"
+          },
+          "t_array(t_uint256)49_storage": {
+            "label": "uint256[49]",
+            "numberOfBytes": "1568"
+          },
+          "t_array(t_uint256)50_storage": {
+            "label": "uint256[50]",
+            "numberOfBytes": "1600"
+          },
+          "t_bool": {
+            "label": "bool",
+            "numberOfBytes": "1"
+          },
+          "t_mapping(t_address,t_array(t_address)dyn_storage)": {
+            "label": "mapping(address => address[])",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_bool)": {
+            "label": "mapping(address => bool)",
+            "numberOfBytes": "32"
+          },
+          "t_mapping(t_address,t_mapping(t_address,t_bool))": {
+            "label": "mapping(address => mapping(address => bool))",
+            "numberOfBytes": "32"
+          },
+          "t_uint256": {
+            "label": "uint256",
+            "numberOfBytes": "32"
+          },
+          "t_uint8": {
+            "label": "uint8",
+            "numberOfBytes": "1"
+          }
+        }
+      }
+    }
+  }
+}
