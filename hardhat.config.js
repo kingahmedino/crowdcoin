@@ -3,9 +3,6 @@ require("@openzeppelin/hardhat-upgrades");
 require("@nomiclabs/hardhat-etherscan");
 require("dotenv").config();
 
-const fs = require("fs");
-const privateKey = fs.readFileSync(".secret").toString();
-
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   solidity: "0.8.15",
