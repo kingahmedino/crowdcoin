@@ -7,7 +7,7 @@
     Crowdcoin are a set of contracts that facilitate decentralized crowdfunding.
     <br />
     <br />
-    <a href="https://github.com/kingahmedino/crowdcoin">View Demo</a>
+    <a href="https://drive.google.com/file/d/1w1HaCDaNPAZid7msaZnWscdsJKiPOJz9/view?usp=sharing">View Demo</a>
   </p>
 </div>
 
