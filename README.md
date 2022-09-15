@@ -7,7 +7,9 @@
     Crowdcoin are a set of contracts that facilitate decentralized crowdfunding.
     <br />
     <br />
-    <a href="https://drive.google.com/file/d/1w1HaCDaNPAZid7msaZnWscdsJKiPOJz9/view?usp=sharing">View Demo</a>
+    <a href="https://crowdcoin-ui.vercel.app/" target="_blank" rel="noopener noreferrer">Try dApp</a>
+    |
+    <a href="https://drive.google.com/file/d/1w1HaCDaNPAZid7msaZnWscdsJKiPOJz9/view?usp=sharing" target="_blank" rel="noopener noreferrer">View Demo</a>
   </p>
 </div>
 
