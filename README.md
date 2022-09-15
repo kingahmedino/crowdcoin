@@ -1,7 +1,7 @@
 <a name="readme-top"></a>
 
 <div align="center">
-  <h3 align="center">Crowdoin</h3>
+  <h2 align="center">Crowdcoin</h2>
 
   <p align="center">
     Crowdcoin are a set of contracts that facilitate decentralized crowdfunding.
